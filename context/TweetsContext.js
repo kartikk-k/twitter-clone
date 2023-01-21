@@ -24,7 +24,8 @@ export const TweetProvider = ({ children }) => {
             username: userData.user?.identities[0].identity_data.user_name,
             name: userData.user?.identities[0].identity_data.full_name,
             likes_count: 0,
-            comments_count: 0
+            comments_count: 0,
+            profile_img: userData.user?.identities[0].identity_data.avatar_url
         })
 
         // processing response
@@ -33,7 +34,7 @@ export const TweetProvider = ({ children }) => {
     }
 
     const getTweets = async () => {
-        let { data, error } = await supabase.from("Tweets").select("username, name, tweet, likes_count, comments_count")
+        let { data, error } = await supabase.from("Tweets").select("id, username, name, tweet, likes_count, comments_count, created_at, profile_img").range(0, 9)
 
         // processing data
         data ? setTweets(data) : console.log("error fetching tweets")
