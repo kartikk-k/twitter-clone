@@ -1,0 +1,108 @@
+There are different versions of SQL but basics are:
+    SELECT, UPDATE, INSERT, DELETE, WHERE
+
+To get all the columns from DB table
+    SELECT * FROM Customers;
+
+
+***** sql keywords are not case sensitive *****
+
+
+Important sql commands
+ -> SELECT - extracts data from a database
+ -> UPDATE - updates data in a database
+ -> DELETE - deletes data from a database
+ -> INSERT INTO - inserts new data into a database
+ -> CREATE DATABASE - creates a new database
+ -> ALTER DATABASE - modifies a database
+ -> CREATE TABLE - creates a new table
+ -> ALTER TABLE - modifies a table
+ -> DROP TABLE - deletes a table
+ -> CREATE INDEX - creates an index (search key)
+ -> DROP INDEX - deletes an index
+ 
+ 
+
+The SQL SELECT Statement - The SELECT statement is used to select data from a database.
+
+    SELECT column1, column2, ... // select columns
+    FROM table_name; // specifing table
+
+
+To select all columns from table
+SELECT * FROM table_name;
+
+
+To avoid getting duplicate values
+    SELECT DISTINCT column1, column2, ...
+    FROM table_name
+
+
+To count no. of rows
+    SELECT COUNT(Country) FROM Customers
+
+To avoid getting duplicate counts
+    FROM (SELECT DISTINCT Country FROM Customers);
+
+
+
+****** To filter use "WHERE" ******
+
+    SELECT * FROM Customers
+    WHERE CustomerID=1;
+
+        OR
+
+    SELECT * FROM Customers
+    WHERE City IN("Paris")
+
+=	...  Equal	
+>	...  Greater than	
+<	...  Less than	
+>=	...  Greater than or equal	
+<=	...  Less than or equal	
+<>	...  Not equal. Note: In some versions of SQL this operator may be written as !=	
+BETWEEN	 ...   Between a certain range	
+LIKE	 ...   Search for a pattern	
+IN	...  To specify multiple possible values for a column
+
+
+
+*****  Order/Sort by  *****
+
+    SELECT * FROM Customers
+    ORDER BY ContactName;
+
+order in descending order
+    SELECT * FROM Customers
+    ORDER BY ContactName DESC;
+
+
+order in ascending order
+    SELECT * FROM Customers
+    ORDER BY ContactName ASC;
+
+
+
+ORDER BY Several Columns Example
+The following SQL statement selects all customers from the "Customers" table, sorted by the "Country" and the "CustomerName" column. This means that it orders by Country, but if some rows have the same Country, it orders them by CustomerName:
+
+    SELECT * FROM Customers
+    ORDER BY Country, CustomerName;
+
+
+
+*****  Insert  *****
+keyword - INSERT INTO
+
+    INSERT INTO Customers (CustomerName, ContactName, Address, City, PostalCode, Country)
+    VALUES ('Cardinal','Tom B. Erichsen','Skagen 21','Stavanger','4006','Norway'),
+
+
+*****  Null or Not Null *****
+    select * from table
+    where City is not null
+
+
+*****  Update table  *****
+    

@@ -7,18 +7,27 @@ const TweetContext = createContext()
 export default TweetContext
 
 export const TweetProvider = ({ children }) => {
-    const { userData } = useContext(AuthContext)
+    const { userData, isAuthenticated } = useContext(AuthContext)
     const [tweets, setTweets] = useState()
+    const [likedTweets, setLikedTweets] = useState()
 
 
     useEffect(() => {
         getTweets()
     }, [])
 
+    useEffect(() => {
+        if (isAuthenticated) {
+            if (userData.user) {
+                getLikedTweetsList()
+            }
+        }
+    }, [userData])
+
 
     // post new tweet
     const postTweet = async (tweet) => {
-        let { data, error } = await supabase.from("Tweets").insert({
+        let { data, error } = await supabase.from("tweets").insert({
             tweet: tweet,
             user_id: userData.user?.id,
             username: userData.user?.identities[0].identity_data.user_name,
@@ -34,16 +43,51 @@ export const TweetProvider = ({ children }) => {
     }
 
     const getTweets = async () => {
-        let { data, error } = await supabase.from("Tweets").select("id, username, name, tweet, likes_count, comments_count, created_at, profile_img").range(0, 9)
+        console.log("getting tweets from function")
+        let { data, error } = await supabase.from("tweets").select("*").range(0, 9)
 
         // processing data
-        data ? setTweets(data) : console.log("error fetching tweets")
+        console.log("Tweets data: ", data)
+        data ? setTweets(data) : console.log("error fetching tweets", error)
     }
+
+    const getLikedTweetsList = async () => {
+        console.log("userdata?user: ", userData.user)
+        let { data, error } = await supabase.from("liked_tweets").select("tweet_id").eq("user_id", userData.user?.id)
+
+        // processing data
+        // data ? setLikedTweets(data) : console.log("error fetching liked tweets: ", error)
+        console.log("liked tweets", data)
+        let likedList = ''
+
+        // mapping through liked tweets list to get all the ids of tweet that were liked by the user
+        data?.map((obj) => {
+            likedList = likedList + `${obj.tweet_id},`
+        })
+
+        likedList = likedList.substring(0, likedList.length - 1)
+        getLiked(likedList)
+        console.log(likedList)
+    }
+
+    const getLiked = async (list) => {
+        let { data, error } = await supabase
+            .rpc("get_liked_tweets", { liked_input: list })
+
+
+        console.log("liked tweets content: ", data)
+        data ? setLikedTweets(data) : console.log("error processing liked tweets: ", error)
+    }
+    //     const { data, error } = await supabase
+    //   .rpc('all_users', { created_from: ..., created_to: ... })
+
+
 
     const contextData = {
         tweets: tweets,
         postTweet: postTweet,
-        getTweets: getTweets
+        getTweets: getTweets,
+        likedTweets: likedTweets
     }
     return (
         <TweetContext.Provider value={contextData}>

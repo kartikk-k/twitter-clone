@@ -12,6 +12,7 @@ export default function Home() {
   const { isAuthenticated, loginWithTwitter } = useContext(AuthContext)
 
   return (
+
     <>
       <div className='max-h-screen mx-auto overflow-hidden max-w-7xl'>
         <Head>

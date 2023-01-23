@@ -16,16 +16,16 @@ function Sidebar() {
             </div>
 
             <div className='flex flex-col items-center md:items-start'>
-                <SidebarRow Icon={HomeIcon} title={"Home"} />
-                <SidebarRow Icon={HashIcon} title={"Explore"} />
-                <SidebarRow Icon={NotificationIcon} title={"Notifications"} />
-                <SidebarRow Icon={MessageIcon} title={"Messages"} />
-                <SidebarRow Icon={BookmarkIcon} title={"Bookmarks"} />
-                <SidebarRow Icon={ListIcon} title={"Lists"} />
+                <SidebarRow Icon={<HomeIcon />} title={"Home"} />
+                <SidebarRow Icon={<HashIcon />} title={"Explore"} />
+                <SidebarRow Icon={<NotificationIcon />} title={"Notifications"} />
+                <SidebarRow Icon={<MessageIcon />} title={"Messages"} />
+                <SidebarRow Icon={<BookmarkIcon />} title={"Bookmarks"} />
+                <SidebarRow Icon={<ListIcon />} title={"Lists"} />
                 <div onClick={isAuthenticated ? signOutUser : loginWithTwitter}>
-                    <SidebarRow Icon={UserIcon} title={isAuthenticated ? 'Sign out' : 'Sign in'} />
+                    <SidebarRow Icon={<UserIcon />} title={isAuthenticated ? 'Sign out' : 'Sign in'} />
                 </div>
-                <SidebarRow Icon={OptionsIcon} title={"More"} />
+                <SidebarRow Icon={<OptionsIcon />} title={"More"} />
             </div>
 
         </div>
