@@ -14,13 +14,12 @@ export const TweetProvider = ({ children }) => {
 
 
     useEffect(() => {
-        setIsLoading(true)
         getTweets()
     }, [])
 
     useEffect(() => {
         if (isAuthenticated) {
-            if (userData.user) {
+            if (userData.user && tweets) {
                 getLikedTweetsList()
             }
         }
@@ -61,7 +60,7 @@ export const TweetProvider = ({ children }) => {
     }
 
     const getLikedTweetsList = async () => {
-        console.log("userdata?user: ", userData.user)
+        // console.log("userdata?user: ", userData.user)
         let { data, error } = await supabase.from("liked_tweets").select("tweet_id").match({ user_id: userData.user?.id, })
 
         // processing data
@@ -85,7 +84,6 @@ export const TweetProvider = ({ children }) => {
 
             console.log("updated tweets: ", updatedTweets)
         }
-        setIsLoading(false)
     }
 
     //     const { data, error } = await supabase

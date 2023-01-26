@@ -5,6 +5,7 @@ import { RefreshIcon, CommentIcon, LikeIcon, RetweetIcon, ShareIcon } from './Ic
 import TweetBox from './TweetBox'
 import { useRouter } from 'next/router'
 import { supabase } from 'utils/supabase'
+import { LikesCount } from './LikesCount'
 
 function Feed() {
     const { isAuthenticated, userData, isLoading } = useContext(AuthContext)
@@ -115,24 +116,23 @@ function Feed() {
                                             <div className='flex justify-start space-x-6'>
                                                 <div onClick={() => router.push(`/tweet/${tweet.id}`)} className='flex items-center space-x-1 cursor-pointer'>
                                                     <CommentIcon className={"h-6 w-6 opacity-70 hover:opacity-100 hover:stroke-twitter"} />
-                                                    <p className='select-none opacity-70'>2</p>
+                                                    <p className='select-none opacity-70'>{tweet.comments_count}</p>
                                                 </div>
                                                 <div className='flex items-center space-x-1 cursor-pointer'>
                                                     <RetweetIcon className={"hover:stroke-green-700 hover:opacity-100 opacity-70 w-6 h-6"} />
                                                     <p className='select-none opacity-70'>1</p>
                                                 </div>
 
-                                                {/* error is causing here: once updated it takes db record to make change */}
                                                 <div onClick={() => handleLike(tweet.id, tweet.isLiked, tweet.likes_count)} className='flex items-center space-x-1 cursor-pointer'>
                                                     <LikeIcon
-                                                        // old className
-                                                        // className={isLiked[tweet.id] ? 'fill-red-600 stroke-red-600 w-6 h-6' : "w-6 h-6 opacity-70 hover:opacity-100 hover:stroke-red-600"}
-
-                                                        // new className
-                                                        className={tweet.isLiked || isLiked[tweet.id] ? 'fill-red-600 stroke-red-600 w-6 h-6' : "w-6 h-6 opacity-70 hover:opacity-100 hover:stroke-red-600"}
+                                                        className={tweet.isLiked === true || isLiked[tweet.id] === true ? 'fill-red-600 stroke-red-600 w-6 h-6' : "w-6 h-6 opacity-70 hover:opacity-100 hover:stroke-red-600"}
                                                     />
                                                     <p className='select-none opacity-70'>{isLikesCount[tweet.id] ? isLikesCount[tweet.id] : tweet.likes_count}</p>
                                                 </div>
+                                                {/* unable to update like icon when coming bacj from expanded tweet */}
+                                                {/* {tweets && (
+                                                    <LikesCount tweetId={tweet.id} tweetIsLiked={tweet.isLiked} likesCount={tweet.likes_count} />
+                                                )} */}
                                                 <div className='flex items-center space-x-1 cursor-pointer opacity-70'>
                                                     <ShareIcon />
                                                 </div>
