@@ -1,10 +1,10 @@
 import React, { useState, useContext, useEffect } from 'react'
 import AuthContext from 'context/AuthContext'
-import { CalenderIcon, LocationIcon, ImageIcon } from './Icons'
+import { CalenderIcon, LocationIcon, ImageIcon } from '../Icons'
 import TweetContext from 'context/TweetsContext'
 
 
-function TweetBox() {
+function NewTweetBox() {
     const { userData } = useContext(AuthContext)
     const { postTweet } = useContext(TweetContext)
     const [input, setInput] = useState('')
@@ -54,4 +54,4 @@ function TweetBox() {
     )
 }
 
-export default TweetBox
+export default NewTweetBox

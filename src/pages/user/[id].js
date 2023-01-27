@@ -1,19 +1,24 @@
-import React from 'react'
-import Head from 'next/head'
+import React, { useEffect } from 'react'
 import { useRouter } from 'next/router'
-import TweetDetailed from 'components/TweetDetailed'
-import AuthContext from 'context/AuthContext'
-import { useContext } from 'react'
+import Head from 'next/head'
 import Sidebar from 'components/Sidebar'
 import Widgets from 'components/Widgets'
+import { useContext } from 'react'
+import AuthContext from 'context/AuthContext'
 import { TweetProvider } from 'context/TweetsContext'
+import Profile from 'components/Profile'
 
-function Tweet() {
+function UserProfile() {
     const { isAuthenticated, loginWithTwitter } = useContext(AuthContext)
 
-    let router = useRouter()
-
+    const router = useRouter()
     let { id } = router.query
+
+    useEffect(() => {
+        if (router.isReady) {
+            // load profile
+        }
+    })
 
     return (
         <>
@@ -27,11 +32,12 @@ function Tweet() {
                     {/* sidebar */}
                     <Sidebar />
 
-                    {/* main tweet extended component */}
-                    <TweetDetailed id={id} />
+                    {/* main profile component */}
+                    <Profile id={id} />
 
                     {/* widgets */}
                     <Widgets />
+
 
                     {/* login with twitter */}
                     {!isAuthenticated && (
@@ -48,4 +54,4 @@ function Tweet() {
     )
 }
 
-export default Tweet
+export default UserProfile

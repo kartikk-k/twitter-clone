@@ -1,11 +1,11 @@
 import AuthContext from 'context/AuthContext'
 import TweetContext from 'context/TweetsContext'
-import React, { useContext, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { RefreshIcon, CommentIcon, LikeIcon, RetweetIcon, ShareIcon } from './Icons'
-import TweetBox from './TweetBox'
 import { useRouter } from 'next/router'
 import { supabase } from 'utils/supabase'
 import { LikesCount } from './LikesCount'
+import NewTweetBox from './tweet/NewTweetBox'
 
 function Feed() {
     const { isAuthenticated, userData, isLoading } = useContext(AuthContext)
@@ -15,7 +15,14 @@ function Feed() {
     const [isLiked, setIsLiked] = useState([])
     const [isLikesCount, setIsLikesCount] = useState([])
 
+    // const [isActive, setIsActive] = useState(true)
+
     const router = useRouter()
+
+    // useEffect(() => {
+    //     if (!isActive) return
+    //     popup()
+    // }, [])
 
     const handleLike = async (tweetId, tweetIsLiked, likesCount) => {
         if (isAuthenticated) {
@@ -82,6 +89,18 @@ function Feed() {
         }
     }
 
+    // const popup = () => {
+
+    //     if (isActive) {
+    //         return (
+    //             <div className='px-4 py-2 border border-opacity-30 bg-green-300 bg-opacity-20 backdrop-blur-md rounded-md min-w-[300px] flex justify-between absolute top-5 right-5'>
+    //                 <p>This is demo message</p>
+    //                 <button onClick={() => setIsActive(false)}>close</button>
+    //             </div>
+    //         )
+    //     } 
+    // }
+
     return (
         <div className='h-screen col-span-8 overflow-auto md:col-span-7 lg:col-span-5'>
             <div className='flex justify-between px-4 mt-4'>
@@ -93,7 +112,7 @@ function Feed() {
 
             {/* Tweet box */}
             {isAuthenticated && (
-                <TweetBox />
+                <NewTweetBox />
             )}
 
             <div className='p-2 m-4 border border-gray-300 rounded-md'>
@@ -102,7 +121,7 @@ function Feed() {
                         {tweets && tweets.map((tweet, index) => {
                             return (
                                 <div key={index} className='flex py-2 space-x-2'>
-                                    <img className='w-10 h-10 rounded-full' src={tweet.profile_img} alt="" />
+                                    <img onClick={() => router.push(`/user/${tweet.name}`)} className='w-10 h-10 rounded-full cursor-pointer' src={tweet.profile_img} alt="" />
                                     <div>
                                         <div className='flex-row space-y-2'>
                                             {/* user info */}

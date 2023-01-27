@@ -16,7 +16,7 @@ function TweetDetailed({ id }) {
     const [comments, setComments] = useState()
     const [input, setInput] = useState('')
 
-    const [isLoading, setIsLoading] = useState()
+    const [isLoading, setIsLoading] = useState(true)
     const [date, setDate] = useState()
     const [time, setTime] = useState()
 
@@ -117,7 +117,7 @@ function TweetDetailed({ id }) {
                 let response = await supabase.from("liked_tweets").select("*").match({ "user_id": userData.user.id, tweet_id: data.id }).single()
                 console.log("main tweet response: ", response)
 
-                if (response.data != null) {
+                if (response.data) {
                     data.isLiked = true
                 } else {
                     data.isLiked = false
@@ -138,15 +138,14 @@ function TweetDetailed({ id }) {
             .eq("tweet_id", id)
             .range(0, 9)
 
-        // processing data
-        console.log(data)
-
-        // 
         if (data.length != 0) {
+            // adding isLiked in all the objects/ comments
             let newData = data.map(tweetData => {
                 return { ...tweetData, isLiked: false }
             })
             setComments(newData)
+
+            // checking if the comment is liked or not if authenticated
             if (isAuthenticated) {
                 if (userData.user && comments) {
                     getLikedCommentsList()
@@ -157,18 +156,19 @@ function TweetDetailed({ id }) {
         } else {
             setIsLoading(false)
         }
-        data ? setComments(data) : console.log("error fetching comments: ", error)
+
+        // data ? setComments(data) : console.log("error fetching comments: ", error)
+        setIsLoading(false)
 
     }
     const getLikedCommentsList = async () => {
-        // console.log("userdata?user: ", userData.user)
         let { data, error } = await supabase.from("liked_comments").select("comment_id").match({ user_id: userData.user?.id })
 
         // processing data
         console.log("liked tweets", data)
         let likedList = []
 
-        // mapping through liked tweets list to get all the ids of tweet that were liked by the user
+        // mapping through liked tweets list to get all the ids of comments that were liked by the user
         data?.map((obj) => {
             likedList = likedList.concat(obj.comment_id)
             console.log("liked list: ", likedList)
@@ -180,9 +180,9 @@ function TweetDetailed({ id }) {
                 console.log(comment.isLiked)
                 return comment
             })
-
             setComments(updatedComments)
         }
+
         setIsLoading(false)
     }
 
