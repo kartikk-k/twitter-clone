@@ -6,7 +6,7 @@ import React, { useEffect } from 'react'
 // ******************************************
 
 
-function MainTweet({ tweet }) {
+function SingleTweet({ tweet }) {
     const [isLiked, setIsLiked] = useState([])
     const [isLikesCount, setIsLikesCount] = useState([])
 
@@ -123,4 +123,4 @@ function MainTweet({ tweet }) {
     )
 }
 
-export default MainTweet
+export default SingleTweet

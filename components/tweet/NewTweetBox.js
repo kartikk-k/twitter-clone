@@ -16,7 +16,7 @@ function NewTweetBox() {
     }
 
     return (
-        <div className='flex p-2 m-4 space-x-2 border border-gray-200 rounded-md'>
+        <div className='flex p-2 space-x-2 border-b border-gray-300'>
             <img
                 src={userData.user?.identities[0].identity_data.avatar_url}
                 alt="profile picture"
@@ -45,7 +45,7 @@ function NewTweetBox() {
                             <p>words: {
                                 input.length
                             }/255 </p>
-                            <button disabled={!input} onClick={handleClick} className='px-5 py-2 font-bold text-white rounded-full bg-twitter disabled:opacity-60'>Tweet</button>
+                            <button disabled={!input || input.length > 255} onClick={handleClick} className='px-5 py-2 font-bold text-white rounded-full bg-twitter disabled:opacity-60'>Tweet</button>
                         </div>
                     </div>
                 </div>

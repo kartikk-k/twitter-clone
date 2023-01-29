@@ -13,17 +13,17 @@ export const TweetProvider = ({ children }) => {
     const [likedTweets, setLikedTweets] = useState()
 
 
-    useEffect(() => {
-        getTweets()
-    }, [])
+    // useEffect(() => {
+    //     getTweets()
+    // }, [])
 
-    useEffect(() => {
-        if (isAuthenticated) {
-            if (userData.user && tweets) {
-                getLikedTweetsList()
-            }
-        }
-    }, [userData])
+    // useEffect(() => {
+    //     if (isAuthenticated) {
+    //         if (userData.user && tweets) {
+    //             getLikedTweetsList()
+    //         }
+    //     }
+    // }, [userData])
 
 
     // post new tweet
