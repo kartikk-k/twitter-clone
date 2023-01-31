@@ -1,7 +1,7 @@
 import React, { useEffect, useContext, useState } from 'react'
 import { supabase } from 'utils/supabase'
 import AuthContext from 'context/AuthContext'
-import { CommentIcon, LikeIcon, RetweetIcon, ShareIcon } from '../Icons'
+import { CommentIcon, LikeIcon, LoadingIcon, RetweetIcon, ShareIcon } from '../Icons'
 import { useRouter } from 'next/router'
 import NewComment from './NewComment'
 
@@ -18,13 +18,15 @@ function TweetsList({ requestFor, requestUser = null, requestTweetId = null }) {
     const [isLikesCount, setIsLikesCount] = useState([])
     const [isTweetsLoading, setIsTweetsLoading] = useState()
     const [isLikedTweetsReady, setIsLikedTweetsReady] = useState()
-    const [commentInput, setCommentInput] = useState()
 
     const [data, setDate] = useState([])
     const [time, setTime] = useState([])
 
 
     useEffect(() => {
+        setIsLiked([])
+        setIsLikesCount([])
+
         setIsTweetsLoading(true)
         getTweets()
     }, [])
@@ -56,6 +58,7 @@ function TweetsList({ requestFor, requestUser = null, requestTweetId = null }) {
             let { data, error } = await supabase
                 .from("tweets")
                 .select("*")
+                .order('id', { ascending: false })
                 .range(0, 9)
 
             data ? updateTweetData(data) : setIsTweetsLoading(false)
@@ -65,6 +68,7 @@ function TweetsList({ requestFor, requestUser = null, requestTweetId = null }) {
                 .from("tweets")
                 .select("*")
                 .eq("user_id", requestUser)
+                .order('id', { ascending: false })
                 .range(0, 9)
 
             data ? updateTweetData(data) : setIsTweetsLoading(false)
@@ -92,13 +96,11 @@ function TweetsList({ requestFor, requestUser = null, requestTweetId = null }) {
 
     // get list of liked tweets
     const getLikedTweetsList = async () => {
-        console.log("running get liked list")
-
         // getting all the tweets to be checked for liked status
         let tweets_list = []
 
         tweets.map(tweet => {
-            return tweets_list = tweets_list.concat(`${tweet.id}`)
+            return tweets_list = tweets_list.concat(tweet.id)
         })
 
         tweets_list = tweets_list.toString()
@@ -107,6 +109,7 @@ function TweetsList({ requestFor, requestUser = null, requestTweetId = null }) {
         const processLikedTweets = (data) => {
             let likedList = []
 
+            // creating an array of liked tweet's id
             data.map(liked_tweet => {
                 likedList = likedList.concat(liked_tweet.tweet_id)
             })
@@ -126,8 +129,7 @@ function TweetsList({ requestFor, requestUser = null, requestTweetId = null }) {
             .filter('tweet_id', 'in', `(${tweets_list})`)
             .eq("user_id", userData.user.id)
 
-        if (!data) return
-        processLikedTweets(data)
+        if (data) processLikedTweets(data)
 
         setIsLikedTweetsReady(true)
     }
@@ -224,7 +226,7 @@ function TweetsList({ requestFor, requestUser = null, requestTweetId = null }) {
 
 
     return (
-        <div className={requestFor === 'single' ? 'py-2' : 'border-b border-gray-300'}>
+        <div className={requestFor === 'single' ? 'py-2' : 'border-b mb-32 border-gray-300'}>
 
             {requestFor != 'single' && (
                 <h1 className='p-2 text-lg font-bold'>Tweets</h1>
@@ -241,7 +243,7 @@ function TweetsList({ requestFor, requestUser = null, requestTweetId = null }) {
 
                                         {/* user info */}
                                         <div className='flex space-x-2'>
-                                            <img onClick={() => router.push(`/user/${tweet.name}`)} className='w-10 h-10 rounded-full cursor-pointer' src={tweet.profile_img} alt="" />
+                                            <img onClick={() => router.push(`/user/${tweet.username}`)} className='w-10 h-10 rounded-full cursor-pointer' src={tweet.profile_img} alt="" />
 
                                             <div className='flex-row justify-between'>
                                                 <p className='text-lg'>{tweet.name}</p>
@@ -302,7 +304,9 @@ function TweetsList({ requestFor, requestUser = null, requestTweetId = null }) {
                     }) : <p>No tweets to show</p>}
                 </div>
 
-            ) : <p>getting your tweets ready</p>}
+            ) : <div className='flex items-center justify-center h-full'>
+                <LoadingIcon className="w-8 h-8 animate-spin" />
+            </div>}
         </div>
     )
 }
