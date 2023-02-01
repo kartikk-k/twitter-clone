@@ -178,7 +178,7 @@ function Profile({ id }) {
                         {/* main content */}
                         {(activeTab === 'Tweets') ?
                             <div>
-                                tweets
+                                <TweetsList requestFor="user" requestUser={id} />
                             </div>
 
                             : (activeTab === 'Replies') ?

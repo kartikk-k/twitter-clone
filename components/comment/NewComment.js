@@ -2,6 +2,7 @@ import React from 'react'
 import { useContext, useState } from 'react'
 import AuthContext from 'context/AuthContext'
 import { ImageIcon, LocationIcon, CalenderIcon } from '../Icons'
+import { supabase } from 'utils/supabase'
 
 function NewComment({ tweetId, commentCount }) {
     const { userData } = useContext(AuthContext)
@@ -71,7 +72,7 @@ function NewComment({ tweetId, commentCount }) {
                             <p>words: {
                                 input.length
                             }/255 </p>
-                            <button disabled={!input} onClick={() => postComment(tweetData.comments_count, tweetData.id)} className='px-5 py-2 font-bold text-white rounded-full bg-twitter disabled:opacity-60'>Reply</button>
+                            <button disabled={!input} onClick={() => postComment()} className='px-5 py-2 font-bold text-white rounded-full bg-twitter disabled:opacity-60'>Reply</button>
                         </div>
 
                     </div>

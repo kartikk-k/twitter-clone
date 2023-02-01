@@ -1,32 +1,25 @@
 import React, { useEffect, useContext, useState } from 'react'
 import { supabase } from 'utils/supabase'
 import AuthContext from 'context/AuthContext'
-import { CommentIcon, LikeIcon, LoadingIcon, RetweetIcon, ShareIcon } from '../Icons'
-import { useRouter } from 'next/router'
-import NewComment from './NewComment'
+import { LoadingIcon } from '../Icons'
+import NewComment from '../comment/NewComment'
+import SingleTweet from './SingleTweet'
 
 
 
-function TweetsList({ requestFor, requestUser = null, requestTweetId = null }) {   // requestForm options: [ all, user, single ]
+function TweetsList({ requestFor, requestUser = null, requestTweetId = null }) {   // requestForm options: [ all, user, single, liked ]
     // checking auth and getting logged-in user data
     const { userData, isAuthenticated } = useContext(AuthContext)
 
-    let router = useRouter()
-
     const [tweets, setTweets] = useState()
-    const [isLiked, setIsLiked] = useState([])
-    const [isLikesCount, setIsLikesCount] = useState([])
     const [isTweetsLoading, setIsTweetsLoading] = useState()
     const [isLikedTweetsReady, setIsLikedTweetsReady] = useState()
 
-    const [data, setDate] = useState([])
+    const [date, setDate] = useState([])
     const [time, setTime] = useState([])
 
 
     useEffect(() => {
-        setIsLiked([])
-        setIsLikesCount([])
-
         setIsTweetsLoading(true)
         getTweets()
     }, [])
@@ -67,7 +60,7 @@ function TweetsList({ requestFor, requestUser = null, requestTweetId = null }) {
             let { data, error } = await supabase
                 .from("tweets")
                 .select("*")
-                .eq("user_id", requestUser)
+                .eq("username", requestUser)
                 .order('id', { ascending: false })
                 .range(0, 9)
 
@@ -134,75 +127,6 @@ function TweetsList({ requestFor, requestUser = null, requestTweetId = null }) {
         setIsLikedTweetsReady(true)
     }
 
-    // handle like and unlike of a tweet
-    const handleLike = async (tweetId, tweetIsLiked, likesCount) => {
-
-        // only able to perform action if authenticated
-        if (isAuthenticated) {
-
-            // checking if action is performed after data is set
-            let tweetLikeStatus = isLiked[tweetId] != undefined ? isLiked[tweetId] : tweetIsLiked
-
-            // like the tweet
-            if (tweetLikeStatus === false) {
-                // reflecting change in UI/frontend
-                setIsLiked({ ...isLiked, [tweetId]: !isLiked[tweetId] })
-                setIsLikesCount({ ...isLikesCount, [tweetId]: likesCount + 1 })
-
-                try {
-                    // sending request to database
-                    let { data, error } = await supabase
-                        .from("liked_tweets")
-                        .insert([{
-                            tweet_id: tweetId,
-                            user_id: userData.user?.id
-                        }])
-
-                    // updating count if there is no error liking tweet in database
-                    if (!error) {
-                        let { data, error } = await supabase
-                            .from("tweets")
-                            .update({ likes_count: likesCount + 1 })
-                            .eq("id", tweetId)
-
-                        return
-                    }
-
-                } catch (error) {
-                    // updating UI if there is error in updating tweet
-                    setIsLiked({ ...isLiked, [tweetId]: !isLiked[tweetId] })
-                    setIsLikesCount({ ...isLikesCount, [tweetId]: isLikesCount[tweetId] - 1 })
-                    console.log(error)
-                }
-
-            }
-
-            // unlike the tweet
-            if (tweetLikeStatus === true) {
-
-                // reflecting change in UI
-                setIsLiked({ ...isLiked, [tweetId]: !isLiked[tweetId] })
-                setIsLikesCount({ ...isLikesCount, [tweetId]: isLikesCount[tweetId] - 1 })
-
-                let { data, error } = await supabase
-                    .from("liked_tweets")
-                    .delete()
-                    .match({ user_id: userData.user?.id, tweet_id: tweetId })
-
-                // decresing like count from tweets table in database
-                if (!error) {
-                    let unlikeFrom = isLikesCount[tweetId] ? isLikesCount[tweetId] : likesCount
-                    let { data, error } = await supabase
-                        .from("tweets")
-                        .update({ likes_count: unlikeFrom - 1 })
-                        .eq("id", tweetId)
-
-                    return
-                }
-            }
-        }
-    }
-
     // to get upload date and time for detailed tweet
     const uploadData = (created_at, tweetId) => {
         if (created_at) {
@@ -223,8 +147,6 @@ function TweetsList({ requestFor, requestUser = null, requestTweetId = null }) {
         }
     }
 
-
-
     return (
         <div className={requestFor === 'single' ? 'py-2' : 'border-b mb-32 border-gray-300'}>
 
@@ -237,70 +159,22 @@ function TweetsList({ requestFor, requestUser = null, requestTweetId = null }) {
                     {tweets && tweets != 0 ? tweets.map((tweet, index) => {
 
                         return (
-                            <div key={index} className='p-2 space-x-2 '>
-                                <div>
-                                    <div className='flex-row'>
-
-                                        {/* user info */}
-                                        <div className='flex space-x-2'>
-                                            <img onClick={() => router.push(`/user/${tweet.username}`)} className='w-10 h-10 rounded-full cursor-pointer' src={tweet.profile_img} alt="" />
-
-                                            <div className='flex-row justify-between'>
-                                                <p className='text-lg'>{tweet.name}</p>
-                                                <p className='text-xs text-gray-600'>@{tweet.username}</p>
-                                            </div>
-                                        </div>
-
-                                        {/* tweet content */}
-                                        <div className={requestFor === 'single' ? 'border-b border-gray-300 py-2' : 'py-2 flex space-x-2'}>
-                                            <div className={requestFor === 'single' ? '' : 'w-10 h-1'}></div>
-                                            <p className={requestFor === 'single' ? 'text-lg' : ''}>{tweet.tweet}</p>
-                                        </div>
-
-                                        {/* upload date and time only for detailed tweet */}
-                                        {requestFor === 'single' && (
-                                            <div className='flex py-2 space-x-4 border-b border-gray-300'>
-                                                <p className='text-sm'>{time[tweet.id]}</p>
-                                                <p className='text-sm'>{data[tweet.id]}</p>
-                                            </div>
+                            <div key={index}>
+                                {requestFor != 'single' && (
+                                    <SingleTweet requestFor={requestFor} tweet={tweet} />
+                                )}
+                                {requestFor === 'single' && (
+                                    <div>
+                                        <SingleTweet date={date[tweet.id]} time={time[tweet.id]} requestFor={requestFor} tweet={tweet} />
+                                        {isAuthenticated && (
+                                            <NewComment tweetId={tweet.id} commentCount={tweet.comments_count} />
                                         )}
-
-                                        {/* tweet options */}
-                                        <div className={requestFor === 'single' ? 'py-2 border-b border-gray-300' : 'flex space-x-2'}>
-                                            <div className={requestFor === 'single' ? '' : 'w-10 h-1'}></div>
-
-                                            <div className='flex justify-start space-x-6'>
-                                                <div onClick={() => router.push(`/tweet/${tweet.id}`)} className='flex items-center space-x-1 cursor-pointer'>
-                                                    <CommentIcon className={"h-6 w-6 opacity-70 hover:opacity-100 hover:stroke-twitter"} />
-                                                    <p className='select-none opacity-70'>{tweet.comments_count}</p>
-                                                </div>
-                                                <div className='flex items-center space-x-1 cursor-pointer'>
-                                                    <RetweetIcon className={"hover:stroke-green-700 hover:opacity-100 opacity-70 w-6 h-6"} />
-                                                    <p className='select-none opacity-70'>1</p>
-                                                </div>
-
-                                                <div onClick={() => handleLike(tweet.id, tweet.isLiked, tweet.likes_count)} className='flex items-center space-x-1 cursor-pointer'>
-                                                    <LikeIcon
-                                                        className={tweet.isLiked === true || isLiked[tweet.id] === true ? 'fill-red-600 stroke-red-600 w-6 h-6' : "w-6 h-6 opacity-70 hover:opacity-100 hover:stroke-red-600"}
-                                                    />
-                                                    <p className='select-none opacity-70'>{isLikesCount[tweet.id] ? isLikesCount[tweet.id] : tweet.likes_count}</p>
-                                                </div>
-                                                <div className='flex items-center space-x-1 cursor-pointer opacity-70'>
-                                                    <ShareIcon />
-                                                </div>
-                                            </div>
-                                        </div>
-
                                     </div>
-
-                                    {/* comment box */}
-                                    {requestFor === 'single' && isAuthenticated && (
-                                        <NewComment tweetId={tweet.id} commentCount={tweet.comments_count} />
-                                    )}
-
-                                </div>
+                                )}
                             </div>
                         )
+
+
                     }) : <p>No tweets to show</p>}
                 </div>
 
