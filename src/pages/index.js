@@ -5,12 +5,11 @@ import Feed from 'components/Feed'
 import Widgets from 'components/Widgets'
 import { useContext } from 'react'
 import AuthContext from 'context/AuthContext'
-import { TweetProvider } from 'context/TweetsContext'
 import LoginFooter from 'components/LoginFooter'
 
 
 export default function Home() {
-  const { isAuthenticated, loginWithTwitter } = useContext(AuthContext)
+  const { isAuthenticated } = useContext(AuthContext)
 
   return (
 
@@ -25,15 +24,11 @@ export default function Home() {
           {/* sidebar */}
           <Sidebar />
 
+          {/* Feed */}
+          <Feed />
 
-          <TweetProvider>
-
-            {/* Feed */}
-            <Feed />
-            {/* Widgets */}
-            <Widgets />
-
-          </TweetProvider>
+          {/* Widgets */}
+          <Widgets />
 
           {/* login with twitter */}
           {!isAuthenticated && (
@@ -41,7 +36,6 @@ export default function Home() {
           )}
 
         </main>
-
       </div>
     </>
   )

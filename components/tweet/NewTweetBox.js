@@ -1,18 +1,30 @@
-import React, { useState, useContext, useEffect } from 'react'
+import React, { useState, useContext } from 'react'
 import AuthContext from 'context/AuthContext'
 import { CalenderIcon, LocationIcon, ImageIcon } from '../Icons'
-import TweetContext from 'context/TweetsContext'
 
 
 function NewTweetBox() {
     const { userData } = useContext(AuthContext)
-    const { postTweet } = useContext(TweetContext)
     const [input, setInput] = useState('')
 
     const handleClick = () => {
         postTweet(input)
         setInput('')
-        alert("posting")
+    }
+
+    const postTweet = async (tweet) => {
+        let { data, error } = await supabase.from("tweets").insert({
+            tweet: tweet,
+            user_id: userData.user?.id,
+            username: userData.user?.identities[0].identity_data.user_name,
+            name: userData.user?.identities[0].identity_data.full_name,
+            likes_count: 0,
+            comments_count: 0,
+            profile_img: userData.user?.identities[0].identity_data.avatar_url
+        })
+
+        // processing response
+        error ? console.log("error posting tweet: ", error) : console.log("tweet data: ", data)
     }
 
     return (

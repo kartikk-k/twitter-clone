@@ -6,6 +6,7 @@ import TweetsList from './tweet/TweetsList'
 import { supabase } from 'utils/supabase'
 import UpdateProfile from './profile/UpdateProfile'
 import FollowList from './profile/FollowList'
+import CommentsList from './comment/CommentsList'
 
 
 function Profile({ id }) {
@@ -184,7 +185,7 @@ function Profile({ id }) {
                             : (activeTab === 'Replies') ?
                                 <div>
                                     {/* Replies */}
-                                    <p>Replies</p>
+                                    <CommentsList requestFor='user' username={id} />
                                 </div>
 
                                 : <div>

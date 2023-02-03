@@ -14,6 +14,12 @@ function SingleTweet({ tweet, requestFor, date = null, time = null }) {
 
     let router = useRouter()
 
+    useEffect(() => {
+        if (!tweet) return
+        setIsLiked(tweet.isLiked)
+        setIsLikesCount(tweet.likes_count)
+    }, [tweet])
+
     // handle like and unlike of a tweet
     const handleLike = async (tweetId, tweetIsLiked, likesCount) => {
 
@@ -31,7 +37,7 @@ function SingleTweet({ tweet, requestFor, date = null, time = null }) {
             // like the tweet
             if (tweetLikeStatus === false) {
                 // reflecting change in UI/frontend
-                setIsLiked(!isLiked)
+                setIsLiked(true)
                 setIsLikesCount(likesCount + 1)
 
 
@@ -78,6 +84,7 @@ function SingleTweet({ tweet, requestFor, date = null, time = null }) {
                         .from("tweets")
                         .update({ likes_count: unlikeFrom - 1 })
                         .eq("id", tweetId)
+
                     return
                 } else {
                     // updating UI if there is error in updating tweet
@@ -88,9 +95,33 @@ function SingleTweet({ tweet, requestFor, date = null, time = null }) {
         }
     }
 
+    const retweet = async (tweet) => {
+        if (!isAuthenticated) return
+
+        // adding retweet as a new tweet in database
+        let { data, error } = await supabase
+            .from("tweets")
+            .insert([{
+                tweet: tweet.tweet,
+                user_id: userData.user?.id,
+                username: tweet.username,
+                name: tweet.name,
+                likes_count: 0,
+                comments_count: 0,
+                profile_img: tweet.profile_img,
+                is_retweeted: true,
+                retweet_id: tweet.id,
+                retweet_name: tweet.name,
+                retweet_username: tweet.username,
+                profile_img: userData.user?.identities[0].identity_data.avatar_url
+            }])
+
+        // updating the retweet count of the original tweet
+    }
+
 
     return (
-        <div className='p-2 space-x-2 '>
+        <div className='p-2 pb-0 space-x-2 '>
             <div>
                 <div className='flex-row'>
 
@@ -128,13 +159,13 @@ function SingleTweet({ tweet, requestFor, date = null, time = null }) {
                                 <p className='select-none opacity-70'>{tweet.comments_count}</p>
                             </div>
                             <div className='flex items-center space-x-1 cursor-pointer'>
-                                <RetweetIcon className={"hover:stroke-green-700 hover:opacity-100 opacity-70 w-6 h-6"} />
+                                <RetweetIcon onClick={() => retweet(tweet)} className={"hover:stroke-green-700 hover:opacity-100 opacity-70 w-6 h-6"} />
                                 <p className='select-none opacity-70'>1</p>
                             </div>
 
                             <div onClick={() => handleLike(tweet.id, tweet.isLiked, tweet.likes_count)} className='flex items-center space-x-1 cursor-pointer'>
                                 <LikeIcon
-                                    className={tweet.isLiked === true || isLiked === true ? 'fill-red-600 stroke-red-600 w-6 h-6' : "w-6 h-6 opacity-70 hover:opacity-100 hover:stroke-red-600"}
+                                    className={isLiked === true ? 'fill-red-600 stroke-red-600 w-6 h-6' : "w-6 h-6 fill-none opacity-70 hover:opacity-100 hover:stroke-red-600"}
                                 />
                                 <p className='select-none opacity-70'>{isLikesCount ? isLikesCount : tweet.likes_count}</p>
                             </div>

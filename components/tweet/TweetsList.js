@@ -147,19 +147,20 @@ function TweetsList({ requestFor, requestUser = null, requestTweetId = null }) {
         }
     }
 
-    return (
-        <div className={requestFor === 'single' ? 'py-2' : 'border-b mb-32 border-gray-300'}>
+    if (isLikedTweetsReady) {
+        return (
+            <div className={requestFor === 'single' ? 'py-2' : 'border-b mb-32 border-gray-300'}>
 
-            {requestFor != 'single' && (
-                <h1 className='p-2 text-lg font-bold'>Tweets</h1>
-            )}
+                {requestFor === 'all' && (
+                    <h1 className='p-2 text-lg font-bold'>Tweets</h1>
+                )}
 
-            {isLikedTweetsReady ? (
+                {/* {isLikedTweetsReady ? ( */}
                 <div className='divide-y divide-gray-300'>
                     {tweets && tweets != 0 ? tweets.map((tweet, index) => {
 
                         return (
-                            <div key={index}>
+                            <div key={index} className="pb-2">
                                 {requestFor != 'single' && (
                                     <SingleTweet requestFor={requestFor} tweet={tweet} />
                                 )}
@@ -173,16 +174,21 @@ function TweetsList({ requestFor, requestUser = null, requestTweetId = null }) {
                                 )}
                             </div>
                         )
-
-
                     }) : <p>No tweets to show</p>}
                 </div>
 
-            ) : <div className='flex items-center justify-center h-full'>
+                {/* ) : <div className='flex items-center justify-center h-full'>
+                    <LoadingIcon className="w-8 h-8 animate-spin" />
+                </div>} */}
+            </div>
+        )
+    } else {
+        return (
+            <div className='flex justify-center mt-5'>
                 <LoadingIcon className="w-8 h-8 animate-spin" />
-            </div>}
-        </div>
-    )
+            </div>
+        )
+    }
 }
 
 export default TweetsList

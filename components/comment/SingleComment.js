@@ -1,7 +1,8 @@
-import React, { useState, useContext } from 'react'
+import React, { useState, useContext, useEffect } from 'react'
 import AuthContext from 'context/AuthContext'
 import { LikeIcon, RetweetIcon } from 'components/Icons'
 import { supabase } from 'utils/supabase'
+import { useRouter } from 'next/router'
 
 function SingleComment({ comment }) {
 
@@ -9,6 +10,14 @@ function SingleComment({ comment }) {
 
     const [isLiked, setIsLiked] = useState()
     const [isLikesCount, setIsLikesCount] = useState()
+
+    let router = useRouter()
+
+    useEffect(() => {
+        if (!comment) return
+        setIsLiked(comment.isLiked)
+        setIsLikesCount(comment.likes_count)
+    }, [comment])
 
 
     const handleLike = async (commentId, commentIsLiked, likesCount) => {
@@ -62,7 +71,7 @@ function SingleComment({ comment }) {
 
                 // decresing like count from tweets table in database
                 if (!error) {
-                    let unlikeFrom = isLikesCount[commentId] ? isLikesCount[commentId] : likesCount
+                    let unlikeFrom = isLikesCount ? isLikesCount : likesCount
                     let { data, error } = await supabase
                         .from("comments")
                         .update({ likes_count: unlikeFrom - 1 })
@@ -86,12 +95,12 @@ function SingleComment({ comment }) {
                     <p>{comment.name}</p>
                     <p className='text-sm text-gray-500'>{comment.username}</p>
                 </div>
-                <p>{comment.comment}</p>
+                <p onClick={() => router.push(`/tweet/${comment.tweet_id}`)} className="cursor-pointer" >{comment.comment}</p>
                 {/* stats */}
                 <div className='flex space-x-6'>
                     <div onClick={() => handleLike(comment.id, comment.isLiked, comment.likes_count)} className='flex space-x-2 cursor-pointer'>
                         <LikeIcon
-                            className={comment.isLiked === true || isLiked === true ? 'fill-red-600 stroke-red-600 w-6 h-6' : "w-6 h-6 opacity-70 hover:opacity-100 hover:stroke-red-600"}
+                            className={isLiked === true ? 'fill-red-600 stroke-red-600 w-6 h-6' : "w-6 h-6 opacity-70 hover:opacity-100 hover:stroke-red-600"}
                         />
                         <p>{isLikesCount ? isLikesCount : comment.likes_count}</p>
                     </div>

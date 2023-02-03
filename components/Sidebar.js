@@ -16,7 +16,7 @@ function Sidebar() {
             </div>
 
             <div className='flex flex-col items-center md:items-start'>
-                <SidebarRow Icon={<HomeIcon />} title={"Home"} />
+                <SidebarRow Icon={<HomeIcon />} title={"Home"} url={"/"} />
                 <SidebarRow Icon={<HashIcon />} title={"Explore"} />
                 <SidebarRow Icon={<NotificationIcon />} title={"Notifications"} />
                 <SidebarRow Icon={<MessageIcon />} title={"Messages"} />
