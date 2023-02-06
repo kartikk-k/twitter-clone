@@ -67,42 +67,47 @@ function UpdateProfile({ profileData }) {
                 </div>
 
                 {/* birthday field */}
-                <div className='p-2 border border-gray-200 rounded-md'>
-                    <p className='text-xs font-bold text-gray-100'>Birthdate</p>
+                {bio && (
 
-                    <div className='flex justify-between'>
-                        {/* date */}
-                        <div className='flex-row'>
-                            <p className='text-center text-white'>Day</p>
-                            <input type="text" inputMode='numeric' maxLength={2} value={birthDay} onChange={(e) => setBirthDay(e.target.value)} className="max-w-[25px] bg-white rounded-md text-center bg-opacity-50 focus:outline-none" />
-                        </div>
 
-                        {/* month */}
-                        <div className='flex-row'>
-                            <p className='text-center text-white'>Month</p>
-                            <select className='bg-white bg-opacity-50 rounded-md focus:outline-none' value={birthMonth} onChange={(e) => setBirthMonth(e.target.value)} id="cars" name="carlist" form="carform">
-                                <option value="Jan">Jan</option>
-                                <option value="Feb">Feb</option>
-                                <option value="Mar">Mar</option>
-                                <option value="Apr">Apr</option>
-                                <option value="May">May</option>
-                                <option value="Jun">Jun</option>
-                                <option value="Jul">Jul</option>
-                                <option value="Aug">Aug</option>
-                                <option value="Sep">Sep</option>
-                                <option value="Oct">Oct</option>
-                                <option value="Nov">Nov</option>
-                                <option value="Dec">Dec</option>
-                            </select>
-                        </div>
+                    <div className='p-2 border border-gray-200 rounded-md'>
+                        <p className='text-xs font-bold text-gray-100'>Birthdate</p>
 
-                        {/* year */}
-                        <div className='flex-row'>
-                            <p className='text-center text-white'>Year</p>
-                            <input value={birthYear} onChange={(e) => setBirthYear(e.target.value)} type="text" maxLength={4} className="max-w-[50px] bg-white rounded-md text-center bg-opacity-50 focus:outline-none" />
+                        <div className='flex justify-between'>
+                            {/* date */}
+                            <div className='flex-row'>
+                                <p className='text-center text-white'>Day</p>
+                                <input type="text" inputMode='numeric' maxLength={2} value={birthDay} onChange={(e) => setBirthDay(e.target.value)} className="max-w-[25px] bg-white rounded-md text-center bg-opacity-50 focus:outline-none" />
+                            </div>
+
+                            {/* month */}
+
+                            <div className='flex-row'>
+                                <p className='text-center text-white'>Month</p>
+                                <select className='bg-white bg-opacity-50 rounded-md focus:outline-none' value={birthMonth} onChange={(e) => setBirthMonth(e.target.value)} id="cars" name="carlist" form="carform">
+                                    <option value="Jan">Jan</option>
+                                    <option value="Feb">Feb</option>
+                                    <option value="Mar">Mar</option>
+                                    <option value="Apr">Apr</option>
+                                    <option value="May">May</option>
+                                    <option value="Jun">Jun</option>
+                                    <option value="Jul">Jul</option>
+                                    <option value="Aug">Aug</option>
+                                    <option value="Sep">Sep</option>
+                                    <option value="Oct">Oct</option>
+                                    <option value="Nov">Nov</option>
+                                    <option value="Dec">Dec</option>
+                                </select>
+                            </div>
+
+                            {/* year */}
+                            <div className='flex-row'>
+                                <p className='text-center text-white'>Year</p>
+                                <input value={birthYear} onChange={(e) => setBirthYear(e.target.value)} type="text" maxLength={4} className="max-w-[50px] bg-white rounded-md text-center bg-opacity-50 focus:outline-none" />
+                            </div>
                         </div>
                     </div>
-                </div>
+                )}
 
 
             </div>

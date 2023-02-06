@@ -1,6 +1,7 @@
 import React, { useState, useContext } from 'react'
 import AuthContext from 'context/AuthContext'
 import { CalenderIcon, LocationIcon, ImageIcon } from '../Icons'
+import { supabase } from 'utils/supabase'
 
 
 function NewTweetBox() {

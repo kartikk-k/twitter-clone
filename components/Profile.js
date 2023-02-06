@@ -18,10 +18,9 @@ function Profile({ id }) {
     const [profileData, setProfileData] = useState()
     const [editMode, setEditMode] = useState()
     const [isFollowListActive, setIsFollowListActive] = useState([])
-    const [content, setContent] = useState()
 
-    // const
-
+    const [accountFollowStatus, setAccountFollowStatus] = useState()
+    const [followId, setFollowId] = useState()
 
     useEffect(() => {
         if (!router.isReady) return
@@ -69,6 +68,93 @@ function Profile({ id }) {
     }
 
 
+    useEffect(() => {
+        if (!router.isReady) return
+        if (!isAuthenticated) return
+
+        checkFollow()
+    }, [router])
+
+
+    // check if the user is already followed
+    const checkFollow = async () => {
+        if(!isAuthenticated) return setAccountFollowStatus(false)
+
+        // follow status can be checked from both follower_list and following_list table
+        let { data, error } = await supabase
+            .from("follow_list")
+            .select("*")
+            .match({
+                user: id,
+                followed_by: userData.user?.identities[0].identity_data.user_name,
+            })
+            .single()
+
+        if (data) {
+            setFollowId(data.id)
+            setAccountFollowStatus(true)
+            return
+        }
+
+        setAccountFollowStatus(false)
+    }
+
+    // follow account -- added in following list of logined user and followers list of active profile 
+    const followAccount = async () => {
+        if(!isAuthenticated) return
+
+        // reflecting change in UI
+        setAccountFollowStatus(true)
+
+        // adding record in follow_list table
+        let { data, error } = await supabase
+            .from("follow_list")
+            .insert([{
+                user: id,
+                followed_by: userData.user?.identities[0].identity_data.user_name
+            }])
+        
+        if (!error) {   
+            // updating count in user_profiles table
+            let { data, error } = await supabase
+            .rpc("follow_account", {
+                follower_increase: id, 
+                following_increase: userData.user?.identities[0].identity_data.user_name
+            })
+        } else {
+            setAccountFollowStatus(false)
+        }
+    }
+
+    // unfollow account
+    const unfollowAccount = async () => {
+        if(!isAuthenticated) return
+
+        // reflecting change in UI
+        setAccountFollowStatus(false)
+
+        // adding record in follow_list table
+        let { data, error } = await supabase
+            .from("follow_list")
+            .delete()
+            .match({
+                user: id,
+                followed_by: userData.user?.identities[0].identity_data.user_name
+            })
+            .single()
+        
+        if (!error) {
+            // updating follow numbers
+            let { data, error } = await supabase
+            .rpc("unfollow_account", {
+                follower_decrease: id,
+                following_decrease: userData.user?.identities[0].identity_data.user_name
+            })
+        } else {   
+            setAccountFollowStatus(true)
+        }
+    }
+
     return (
         <div className='h-screen col-span-8 overflow-auto md:col-span-7 lg:col-span-5'>
             <div className='mb-14'>
@@ -97,7 +183,14 @@ function Profile({ id }) {
                                 {userData.user?.identities[0].identity_data.user_name === profileData.username ? (
                                     <button onClick={() => setEditMode(!editMode)} className='px-4 py-2 font-bold border border-gray-500 rounded-full'>Edit profile</button>
                                 ) : (
-                                    <button className='px-4 py-2 font-bold text-white border rounded-full bg-twitter'>Follow</button>
+                                    <div>
+                                        {accountFollowStatus ? (
+                                            <button onClick={() => unfollowAccount()} className='px-4 py-2 font-bold text-black border rounded-full'>Following</button>
+                                        ) : (
+                                            <button onClick={() => followAccount()} className='px-4 py-2 font-bold text-white border rounded-full bg-twitter'>Follow</button>
+                                        )}
+                                    </div>
+
                                 )}
 
                                 {/* edit profile */}
@@ -121,10 +214,10 @@ function Profile({ id }) {
                                     <p>{profileData.bio != null ? profileData.bio : 'bio not added'}</p>
 
                                     {/* birth info */}
-                                    <div className='flex items-center space-x-2'>
+                                    {/* <div className='flex items-center space-x-2'>
                                         <CakeIcon className="w-5 h-5 stroke-gray-500" />
                                         <p className='text-gray-500'>Born {profileData.birth_date != null ? profileData.birth_date : 'not added'}</p>
-                                    </div>
+                                    </div> */}
                                 </div>
 
                                 {/* followers and following */}
@@ -141,7 +234,7 @@ function Profile({ id }) {
                                                 </div>
                                                 <div className='z-50 overflow-auto bg-white w-[80%] max-w-[350px] sm:h-[80%] rounded-lg '>
                                                     <ListHeader heading="Followers" />
-                                                    <FollowList listType="follower" username={userData.user?.identities[0].identity_data.user_name} />
+                                                    <FollowList listType="follower" username={id} />
                                                 </div>
                                             </div>
                                         )}
@@ -159,7 +252,7 @@ function Profile({ id }) {
                                                 </div>
                                                 <div className='z-50 bg-white overflow-auto w-[80%] max-w-[350px] sm:h-[80%] rounded-md '>
                                                     <ListHeader heading="Following" />
-                                                    <FollowList listType="following" username={userData.user?.identities[0].identity_data.user_name} />
+                                                    <FollowList listType="following" username={id} />
                                                 </div>
                                             </div>
                                         )}
@@ -205,3 +298,40 @@ function Profile({ id }) {
 }
 
 export default Profile
+
+
+
+// -- follow account
+// create function follow_account(follower_increase text, following_increase text) 
+// returns void as
+// $$
+//   -- follower increase
+//   update  user_profiles
+//   set followers = followers + 1
+//   where username = follower_increase;
+
+//   -- following increase
+//   update user_profiles
+//   set following = following + 1
+//   where username = following_increase;
+  
+// $$ 
+// language sql volatile;
+
+
+// -- unfollow account
+// create function unfollow_account(follower_decrease text, following_decrease text) 
+// returns void as
+// $$
+//   -- follower decrease
+//   update  user_profiles
+//   set followers = followers - 1
+//   where username = follower_decrease;
+
+//   -- following decrease
+//   update user_profiles
+//   set following = following - 1
+//   where username = following_decrease;
+  
+// $$ 
+// language sql volatile;

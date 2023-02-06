@@ -99,6 +99,25 @@ function SingleTweet({ tweet, requestFor, date = null, time = null }) {
         if (!isAuthenticated) return
 
         // adding retweet as a new tweet in database
+        if (tweet.is_retweeted) {
+            let { data, error } = await supabase
+                .from("tweets")
+                .insert([{
+                    tweet: tweet.tweet,
+                    user_id: userData.user?.id,
+                    username: tweet.username,
+                    name: tweet.name,
+                    likes_count: 0,
+                    comments_count: 0,
+                    profile_img: tweet.profile_img,
+                    is_retweeted: true,
+                    retweet_id: tweet.id,
+                    retweet_name: tweet.name,
+                    retweet_username: tweet.username,
+                    profile_img: tweet.profile_img
+                }])
+
+        }
         let { data, error } = await supabase
             .from("tweets")
             .insert([{
@@ -113,10 +132,19 @@ function SingleTweet({ tweet, requestFor, date = null, time = null }) {
                 retweet_id: tweet.id,
                 retweet_name: tweet.name,
                 retweet_username: tweet.username,
-                profile_img: userData.user?.identities[0].identity_data.avatar_url
+                profile_img: tweet.profile_img
             }])
 
         // updating the retweet count of the original tweet
+        if (!error) {
+            let { data, error } = await supabase
+                .from("tweets")
+                .update([{
+                    retweets_count: tweet.retweets_count + 1
+                }])
+                .eq("id", tweet.id)
+                .single()
+        }
     }
 
 
@@ -124,6 +152,15 @@ function SingleTweet({ tweet, requestFor, date = null, time = null }) {
         <div className='p-2 pb-0 space-x-2 '>
             <div>
                 <div className='flex-row'>
+
+
+                    {/* consitional retweet section */}
+                    {tweet.is_retweeted && (
+                        <div className='flex px-2 py-1 space-x-2'>
+                            <RetweetIcon className="w-5 h-5" />
+                            <p>{tweet.retweet_username === userData.user?.identities[0].identity_data.user_name ? "You retweeted" : `${tweet.retweet_name} retweeted`}</p>
+                        </div>
+                    )}
 
                     {/* user info */}
                     <div className='flex space-x-2'>
@@ -159,7 +196,7 @@ function SingleTweet({ tweet, requestFor, date = null, time = null }) {
                                 <p className='select-none opacity-70'>{tweet.comments_count}</p>
                             </div>
                             <div className='flex items-center space-x-1 cursor-pointer'>
-                                <RetweetIcon onClick={() => retweet(tweet)} className={"hover:stroke-green-700 hover:opacity-100 opacity-70 w-6 h-6"} />
+                                <RetweetIcon className={"hover:stroke-green-700 hover:opacity-100 opacity-70 w-6 h-6"} />
                                 <p className='select-none opacity-70'>1</p>
                             </div>
 
