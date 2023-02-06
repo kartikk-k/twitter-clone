@@ -212,12 +212,6 @@ function Profile({ id }) {
                                 <div>
                                     {/* bio */}
                                     <p>{profileData.bio != null ? profileData.bio : 'bio not added'}</p>
-
-                                    {/* birth info */}
-                                    {/* <div className='flex items-center space-x-2'>
-                                        <CakeIcon className="w-5 h-5 stroke-gray-500" />
-                                        <p className='text-gray-500'>Born {profileData.birth_date != null ? profileData.birth_date : 'not added'}</p>
-                                    </div> */}
                                 </div>
 
                                 {/* followers and following */}

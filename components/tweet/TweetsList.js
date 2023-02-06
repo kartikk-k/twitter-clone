@@ -51,8 +51,8 @@ function TweetsList({ requestFor, requestUser = null, requestTweetId = null }) {
             let { data, error } = await supabase
                 .from("tweets")
                 .select("*")
-                .order('id', { ascending: false })
-                .range(0, 9)
+                .order('created_at', { ascending: false })
+            // .range(0, 9)
 
             data ? updateTweetData(data) : setIsTweetsLoading(false)
 
@@ -61,8 +61,8 @@ function TweetsList({ requestFor, requestUser = null, requestTweetId = null }) {
                 .from("tweets")
                 .select("*")
                 .eq("username", requestUser)
-                .order('id', { ascending: false })
-                .range(0, 9)
+                .order('created_at', { ascending: false })
+            // .range(0, 9)
 
             data ? updateTweetData(data) : setIsTweetsLoading(false)
 
@@ -147,6 +147,80 @@ function TweetsList({ requestFor, requestUser = null, requestTweetId = null }) {
         }
     }
 
+    // const updateTweetsList = (payload) => {
+    //     console.log("actual tweet: ", payload.new)
+    //     payload.new = { ...payload.new, isLiked: false }
+    //     // setTweets(tweets.concat(payload.new))
+    //     console.log(tweets)
+
+    // }
+
+    // realtime adding new tweet
+    useEffect(() => {
+        if (!isAuthenticated) return
+        const realtimeTweets = supabase
+            .channel('public:tweets')
+            .on('postgres_changes', {
+                event: 'INSERT',
+                schema: 'public',
+                table: 'tweets'
+            }, (payload) => {
+                // updateTweetsList(payload)
+            })
+            .subscribe()
+
+        return () => {
+            supabase.removeChannel(realtimeTweets)
+        }
+    }, [tweets])
+
+
+
+    const updateTweet = (payload) => {
+        if (payload.new.user_id != userData.user?.id) return
+
+        if (payload.eventType === "INSERT") {
+            tweets.map(tweet => {
+                console.log(tweet.id)
+                if (tweet.id === payload.new.tweet_id) {
+                    console.log("check true")
+                    tweet = { ...tweet, isLiked: true }
+                    console.log(tweet)
+                    return
+                }
+            })
+        } else if (payload.eventType === "DELETE") {
+            tweets.map(tweet => {
+                if (tweet.id === payload.new.tweet_id) {
+                    return tweet.isLiked = false
+                }
+            })
+        }
+        console.log(payload)
+    }
+
+
+    // realtime tweet updates
+    useEffect(() => {
+        if (!isAuthenticated) return
+        const realtimeTweets = supabase
+            .channel('public:liked_tweets')
+            .on('postgres_changes', {
+                event: '*',
+                schema: 'public',
+                table: 'liked_tweets'
+            }, (payload) => {
+                updateTweet(payload)
+            })
+            .subscribe()
+
+        return () => {
+            supabase.removeChannel(realtimeTweets)
+        }
+    }, [tweets])
+
+
+
     if (isLikedTweetsReady) {
         return (
             <div className={requestFor === 'single' ? 'py-2' : 'border-b mb-32 border-gray-300'}>
@@ -176,10 +250,6 @@ function TweetsList({ requestFor, requestUser = null, requestTweetId = null }) {
                         )
                     }) : <p>No tweets to show</p>}
                 </div>
-
-                {/* ) : <div className='flex items-center justify-center h-full'>
-                    <LoadingIcon className="w-8 h-8 animate-spin" />
-                </div>} */}
             </div>
         )
     } else {
