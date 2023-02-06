@@ -29,8 +29,8 @@ function Profile({ id }) {
         getUserInfo()
 
         // creating state for following and followers list 
-        setIsFollowListActive({ ...isFollowListActive, ["followers"]: false })
-        setIsFollowListActive({ ...isFollowListActive, ["following"]: false })
+        // setIsFollowListActive({ ...isFollowListActive, ["followers"]: false })
+        // setIsFollowListActive({ ...isFollowListActive, ["following"]: false })
     }, [router])
 
 
