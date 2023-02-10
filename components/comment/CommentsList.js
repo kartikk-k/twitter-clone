@@ -112,7 +112,7 @@ function CommentsList({ requestFor = "default", id = null, username = null }) { 
                 {isLikedCommentsReady ? (
                     <div className='p-2 border-t border-gray-300 mb-44'>
                         {comments ? comments.map((comment, index) => (
-                            <SingleComment index={index} comment={comment} />
+                            <SingleComment key={index} comment={comment} />
 
                         )) : <p className='px-2'>No comments on this tweet!</p>}
                     </div>
