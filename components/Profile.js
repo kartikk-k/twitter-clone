@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
-import { BackIcon, CakeIcon, LoadingIcon, CancelIcon } from './Icons'
+import { BackIcon, LoadingIcon, CancelIcon } from './Icons'
 import AuthContext from 'context/AuthContext'
 import TweetsList from './tweet/TweetsList'
 import { supabase } from 'utils/supabase'
@@ -20,7 +20,6 @@ function Profile({ id }) {
     const [isFollowListActive, setIsFollowListActive] = useState([])
 
     const [accountFollowStatus, setAccountFollowStatus] = useState()
-    const [followId, setFollowId] = useState()
 
     useEffect(() => {
         if (!router.isReady) return
@@ -28,9 +27,6 @@ function Profile({ id }) {
         setActiveTab('Tweets')
         getUserInfo()
 
-        // creating state for following and followers list 
-        // setIsFollowListActive({ ...isFollowListActive, ["followers"]: false })
-        // setIsFollowListActive({ ...isFollowListActive, ["following"]: false })
     }, [router])
 
 
@@ -78,7 +74,7 @@ function Profile({ id }) {
 
     // check if the user is already followed
     const checkFollow = async () => {
-        if(!isAuthenticated) return setAccountFollowStatus(false)
+        if (!isAuthenticated) return setAccountFollowStatus(false)
 
         // follow status can be checked from both follower_list and following_list table
         let { data, error } = await supabase
@@ -91,7 +87,6 @@ function Profile({ id }) {
             .single()
 
         if (data) {
-            setFollowId(data.id)
             setAccountFollowStatus(true)
             return
         }
@@ -101,7 +96,7 @@ function Profile({ id }) {
 
     // follow account -- added in following list of logined user and followers list of active profile 
     const followAccount = async () => {
-        if(!isAuthenticated) return
+        if (!isAuthenticated) return
 
         // reflecting change in UI
         setAccountFollowStatus(true)
@@ -113,14 +108,14 @@ function Profile({ id }) {
                 user: id,
                 followed_by: userData.user?.identities[0].identity_data.user_name
             }])
-        
-        if (!error) {   
+
+        if (!error) {
             // updating count in user_profiles table
             let { data, error } = await supabase
-            .rpc("follow_account", {
-                follower_increase: id, 
-                following_increase: userData.user?.identities[0].identity_data.user_name
-            })
+                .rpc("follow_account", {
+                    follower_increase: id,
+                    following_increase: userData.user?.identities[0].identity_data.user_name
+                })
         } else {
             setAccountFollowStatus(false)
         }
@@ -128,7 +123,7 @@ function Profile({ id }) {
 
     // unfollow account
     const unfollowAccount = async () => {
-        if(!isAuthenticated) return
+        if (!isAuthenticated) return
 
         // reflecting change in UI
         setAccountFollowStatus(false)
@@ -142,15 +137,15 @@ function Profile({ id }) {
                 followed_by: userData.user?.identities[0].identity_data.user_name
             })
             .single()
-        
+
         if (!error) {
             // updating follow numbers
             let { data, error } = await supabase
-            .rpc("unfollow_account", {
-                follower_decrease: id,
-                following_decrease: userData.user?.identities[0].identity_data.user_name
-            })
-        } else {   
+                .rpc("unfollow_account", {
+                    follower_decrease: id,
+                    following_decrease: userData.user?.identities[0].identity_data.user_name
+                })
+        } else {
             setAccountFollowStatus(true)
         }
     }
@@ -292,40 +287,3 @@ function Profile({ id }) {
 }
 
 export default Profile
-
-
-
-// -- follow account
-// create function follow_account(follower_increase text, following_increase text) 
-// returns void as
-// $$
-//   -- follower increase
-//   update  user_profiles
-//   set followers = followers + 1
-//   where username = follower_increase;
-
-//   -- following increase
-//   update user_profiles
-//   set following = following + 1
-//   where username = following_increase;
-  
-// $$ 
-// language sql volatile;
-
-
-// -- unfollow account
-// create function unfollow_account(follower_decrease text, following_decrease text) 
-// returns void as
-// $$
-//   -- follower decrease
-//   update  user_profiles
-//   set followers = followers - 1
-//   where username = follower_decrease;
-
-//   -- following decrease
-//   update user_profiles
-//   set following = following - 1
-//   where username = following_decrease;
-  
-// $$ 
-// language sql volatile;
