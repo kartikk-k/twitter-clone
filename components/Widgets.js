@@ -2,7 +2,7 @@ import React from 'react'
 import { SearchIcon } from './Icons'
 import { TwitterTimelineEmbed } from 'react-twitter-embed'
 
-function Widgets() {
+function Widgets({ userId }) {
     return (
         <div className='hidden col-span-2 px-4 mt-2 lg:block'>
             {/* Search box */}
@@ -12,12 +12,18 @@ function Widgets() {
             </div>
 
             {/* timeline */}
-            <div className='max-h-screen mt-4 overflow-scroll'>
-                <TwitterTimelineEmbed
-                    sourceType='profile'
-                    screenName='kartik_builds'
-                />
-            </div>
+            {userId ? (
+
+                <div className='max-h-screen pb-8 mt-4 overflow-scroll'>
+                    <p className='pb-2 font-bold text-center'>From Twitter.com</p>
+                    <TwitterTimelineEmbed
+                        sourceType='profile'
+                        screenName={userId}
+                    />
+                </div>
+            ) :
+                <p className='py-2 text-center'>Login to see widgets</p>
+            }
 
         </div>
     )

@@ -9,7 +9,7 @@ import LoginFooter from 'components/LoginFooter'
 
 
 export default function Home() {
-  const { isAuthenticated } = useContext(AuthContext)
+  const { isAuthenticated, userData } = useContext(AuthContext)
 
   return (
 
@@ -28,7 +28,7 @@ export default function Home() {
           <Feed />
 
           {/* Widgets */}
-          <Widgets />
+          <Widgets userId={isAuthenticated ? userData.user?.identities[0].identity_data.user_name : null} />
 
           {/* login with twitter */}
           {!isAuthenticated && (
